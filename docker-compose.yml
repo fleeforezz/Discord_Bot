@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  jso-bot:
+    build: .
+    image: jso-bot
+    container_name: jso-bot
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    restart: unless-stopped

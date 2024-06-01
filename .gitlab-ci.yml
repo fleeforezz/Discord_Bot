@@ -1,0 +1,20 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  image: kroniak/ssh-client
+  before_script:
+    - echo "deploying app"
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - eval "$(ssh-agent -s)" 
+    - ssh-add ~/.ssh/id_rsa
+    - ssh-keyscan $PROD_GAMMA_SERVER_IP -H  >> ~/.ssh/known_hosts
+  script:
+    - ssh nhat@$PROD_GAMMA_SERVER_IP "cd discord-bot && sudo docker-compose down || true"
+    - ssh nhat@$PROD_GAMMA_SERVER_IP "sudo rm -r discord-bot || true"
+    - ssh nhat@$PROD_GAMMA_SERVER_IP "git clone https://gitlab.fleeforezz.me/jso/discord-bot.git"
+    - ssh nhat@$PROD_GAMMA_SERVER_IP "cd discord-bot && sudo docker-compose up -d"
+    - ssh nhat@$PROD_GAMMA_SERVER_IP "ls discord-bot"
